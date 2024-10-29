@@ -1,7 +1,5 @@
 struct Action {
-    static func empty() -> Action {
-        .init()
-    }
+    var script: String { "test" }
 }
 
 class ActionBuilder: @unchecked Sendable {
@@ -17,4 +15,4 @@ class ActionBuilder: @unchecked Sendable {
 }
 
 public protocol ActionStorage {}
-public protocol AsyncResponse {}
+public protocol AsyncResponse: Encodable {}

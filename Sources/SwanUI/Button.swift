@@ -1,30 +1,26 @@
-struct Button<Children: HTML>: HTML {
+struct ActionableElement<Content: HTML>: HTML where Content.Tag: HTMLTrait.Attributes.Global {
+    let _content: Content
     let action: Action
-    let children: () -> Children
 
     var content: some HTML {
-        button {
-            children()
-        }.attributes()
+        _content.attributes(.on(.click, action.script))
     }
 
-    init(onClick: (() -> Void)? = nil, @HTMLBuilder content: @escaping () -> Children) {
+    init(content: Content, onClick: () -> Void) {
         @Environment(requiring: EnvironmentValues.$actionBuilder) var actionBuilder
         @Environment(requiring: EnvironmentValues.$route) var route
 
-        action =
-            if let onClick {
-                actionBuilder.register(action: onClick, on: route)
-            } else {
-                .empty()
-            }
-        children = content
+        _content = content
+        action = actionBuilder.register(action: onClick, on: route)
     }
 
-    func onClick(action onClick: @escaping () -> Void) -> Self {
+}
+
+extension HTML where Tag: HTMLTrait.Attributes.Global {
+    func onClick(action onClick: @escaping () -> Void) -> ActionableElement<Self> {
         .init(
-            onClick: onClick,
-            content: children
+            content: self,
+            onClick: onClick
         )
     }
 }
